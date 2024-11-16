@@ -25,12 +25,7 @@ func main() {
 }
 
 func start() {
-	var cfg *config
-	var err error
-	if cfg, err = readConfigFromEnv(); err != nil {
-		slog.Error("read config from env", "error", err)
-		os.Exit(1)
-	}
+	cfg := getDefaultConfig()
 	previewerApp = app.NewPreviewer(cfg.server.Addr)
 	previewerApp.Start()
 }

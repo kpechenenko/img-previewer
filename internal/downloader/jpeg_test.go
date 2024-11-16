@@ -3,42 +3,69 @@ package downloader
 import (
 	"context"
 	"errors"
-	"fmt"
 	"net/http"
+	"net/http/httptest"
 	"testing"
-	"time"
 
 	"github.com/stretchr/testify/assert"
 )
 
-// JpegImageDownloader_TestProxyHeaders проверка того,
-// что загрузчик проксирует заголовки при отправке запроса на загрузку изображения.
-// Для этого в одной горутине поднимается вебсервер, в другой - отправляется запрос из загрузчика.
-func TestJpegImageDownloaderProxyHeaders(t *testing.T) {
-	d := NewJPEGImageDownloader()
+// TestDownloaderProxyHeaders проверка того, что загрузчик проксирует заголовки
+// при отправке запроса на загрузку изображения.
+func TestDownloaderProxyHeaders(t *testing.T) {
 	header := http.Header{
 		"Header1": {"1"},
 		"Header2": {"2"},
 		"Header3": {"3"},
 	}
-	address := "127.0.0.1:9000"
-
 	var actualHeader http.Header
-	mux := http.NewServeMux()
-	mux.HandleFunc("GET /", func(_ http.ResponseWriter, r *http.Request) {
-		fmt.Println(r)
+	srv := httptest.NewServer(http.HandlerFunc(func(_ http.ResponseWriter, r *http.Request) {
 		actualHeader = r.Header
-	})
-	srv := http.Server{Addr: address, Handler: mux, ReadHeaderTimeout: 5 * time.Second}
-	go func() {
-		if err := srv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
-			assert.FailNow(t, err.Error())
-		}
-	}()
-	_, _ = d.Download(context.Background(), "http://"+address, header)
-	err := srv.Shutdown(context.Background())
-	assert.NoError(t, err)
+	}))
+	d := NewJPEGImageDownloader(srv.Client())
+	_, _ = d.Download(context.Background(), srv.URL+"/test", header)
 	for h := range header {
 		assert.Contains(t, actualHeader, h)
 	}
+}
+
+// TestDownloaderReturnErrWhenServerExistAndImageDoesNotExist проверяет тип возвращаемой ошибки при обращении к
+// несуществующему изображению на существующем сервере.
+func TestDownloaderReturnErrWhenServerExistAndImageDoesNotExist(t *testing.T) {
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		w.WriteHeader(http.StatusNotFound)
+	}))
+	d := NewJPEGImageDownloader(srv.Client())
+	_, err := d.Download(context.Background(), srv.URL, nil)
+	assert.ErrorIs(t, err, ErrImageDoesNotFoundOnServer)
+}
+
+// TestDownloaderProxyOriginalErr проверяет, что ошибка от оригинального сервера проксиурется загрузчиком.
+func TestDownloaderProxyOriginalErr(t *testing.T) {
+	statusCode := http.StatusBadRequest
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		w.WriteHeader(statusCode)
+	}))
+	d := NewJPEGImageDownloader(srv.Client())
+	_, err := d.Download(context.Background(), srv.URL, nil)
+	var downloadImgErr *FailToDownloadImageErr
+	if errors.As(err, &downloadImgErr) {
+		assert.Equal(t, statusCode, downloadImgErr.statusCode)
+	} else {
+		assert.FailNow(t, "error type should be *FailToDownloadImageErr")
+	}
+}
+
+// TestDownloaderDownloadImageCorrect проверить, что загрузчик корректно скачивает изображения.
+func TestDownloaderDownloadImageCorrect(t *testing.T) {
+	srv := httptest.NewServer(
+		http.StripPrefix(
+			"/testdata",
+			http.FileServer(http.Dir("./testdata")),
+		),
+	)
+	d := NewJPEGImageDownloader(srv.Client())
+	img, err := d.Download(context.Background(), srv.URL+"/testdata/gopher_200_50.jpeg", nil)
+	assert.NoError(t, err)
+	assert.NotNil(t, img)
 }

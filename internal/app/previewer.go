@@ -11,6 +11,7 @@ import (
 	"github.com/kpechenenko/img-previewer/internal/handler"
 	"github.com/kpechenenko/img-previewer/internal/middleware"
 	"github.com/kpechenenko/img-previewer/internal/previewer"
+	"github.com/kpechenenko/img-previewer/internal/service"
 )
 
 // PreviewerApp веб сервер с api для создания превью изображений.
@@ -23,8 +24,10 @@ func NewPreviewer(addr string) *PreviewerApp {
 	mux.Handle(
 		handler.PreviewPrefix,
 		handler.NewMakePreviewHandler(
-			previewer.NewKNNImageCompressor(),
-			downloader.NewJPEGImageDownloader(),
+			service.NewHTTPPreviewerService(
+				previewer.NewKNNImageCompressor(),
+				downloader.NewJPEGImageDownloader(http.DefaultClient),
+			),
 		),
 	)
 	mux.Handle("GET /ping", handler.NewPingHandler())

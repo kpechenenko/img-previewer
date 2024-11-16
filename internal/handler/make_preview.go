@@ -10,21 +10,19 @@ import (
 	"strings"
 
 	"github.com/kpechenenko/img-previewer/internal/downloader"
-	"github.com/kpechenenko/img-previewer/internal/previewer"
+	"github.com/kpechenenko/img-previewer/internal/service"
 )
 
 // MakePreviewHandler обработчик http запроса на создание превью изображения.
 // Скачивает изображение с внешнего ресурса, создает превью, отдает результат пользователю.
 type MakePreviewHandler struct {
-	previewer  previewer.Previewer
-	downloader downloader.HTTPImageDownloader
+	srv service.NetPreviewerService
 }
 
 func NewMakePreviewHandler(
-	previewer previewer.Previewer,
-	downloader downloader.HTTPImageDownloader,
+	srv service.NetPreviewerService,
 ) *MakePreviewHandler {
-	return &MakePreviewHandler{previewer: previewer, downloader: downloader}
+	return &MakePreviewHandler{srv: srv}
 }
 
 const (
@@ -43,26 +41,26 @@ func (h *MakePreviewHandler) parsePathParams(p string) (*pathParams, error) {
 	if widthEndIdx == -1 {
 		msg := "width is empty"
 		slog.Info(msg)
-		return nil, errors.New(msg)
+		return nil, &InvalidParamErr{description: msg}
 	}
 	width, err := strconv.Atoi(p[:widthEndIdx])
 	if err != nil {
 		msg := "width is invalid number"
 		slog.Info(msg)
-		return nil, errors.New(msg)
+		return nil, &InvalidParamErr{description: msg}
 	}
 	p = p[widthEndIdx+1:]
 	heightEndIdx := strings.Index(p, "/")
 	if heightEndIdx == -1 {
 		msg := "height is empty"
 		slog.Info(msg)
-		return nil, errors.New(msg)
+		return nil, &InvalidParamErr{description: msg}
 	}
 	height, err := strconv.Atoi(p[:heightEndIdx])
 	if err != nil {
 		msg := "height is invalid number"
 		slog.Info(msg)
-		return nil, errors.New(msg)
+		return nil, &InvalidParamErr{description: msg}
 	}
 	p = p[heightEndIdx+1:]
 	return &pathParams{
@@ -76,26 +74,29 @@ func (h *MakePreviewHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	var err error
 	var p *pathParams
 	if p, err = h.parsePathParams(r.RequestURI); err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		if _, err = w.Write([]byte(err.Error())); err != nil {
-			slog.Error("error writing response", "error", err)
-		}
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 	slog.Info("try to make preview", "params", *p)
-	var img image.Image
-	if img, err = h.downloader.Download(r.Context(), "http://"+p.url, r.Header); err != nil {
-		w.WriteHeader(http.StatusBadGateway)
+	var preview image.Image
+	if preview, err = h.srv.DownloadImageAndMakePreview(
+		r.Context(),
+		"http://"+p.url,
+		r.Header,
+		p.width,
+		p.height,
+	); err != nil {
+		var downloadImgErr *downloader.FailToDownloadImageErr
+		if errors.As(err, &downloadImgErr) {
+			http.Error(w, err.Error(), http.StatusBadGateway)
+		} else {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
 		return
 	}
-	var preview image.Image
-	if preview, err = h.previewer.MakePreview(img, p.width, p.height); err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
+	if err = jpeg.Encode(w, preview, nil); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 	w.Header().Set("Content-Type", "image/jpeg")
-	if err = jpeg.Encode(w, preview, nil); err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
 }
