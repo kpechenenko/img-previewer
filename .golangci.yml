@@ -63,3 +63,6 @@ linters:
     - varcheck
     - wastedassign
     - whitespace
+
+issues:
+  exclude-use-default: false

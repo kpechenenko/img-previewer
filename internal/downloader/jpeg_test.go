@@ -14,9 +14,9 @@ import (
 // при отправке запроса на загрузку изображения.
 func TestDownloaderProxyHeaders(t *testing.T) {
 	header := http.Header{
-		"Header1": {"1"},
-		"Header2": {"2"},
-		"Header3": {"3"},
+		"Header1": []string{"1"},
+		"Header2": []string{"2"},
+		"Header3": []string{"3"},
 	}
 	var actualHeader http.Header
 	srv := httptest.NewServer(http.HandlerFunc(func(_ http.ResponseWriter, r *http.Request) {
