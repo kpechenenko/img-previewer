@@ -1,3 +1,4 @@
+// Package handler содержит код http обработчиков запросов.
 package handler
 
 import (
@@ -9,8 +10,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/kpechenenko/img-previewer/internal/downloader"
-	"github.com/kpechenenko/img-previewer/internal/service"
+	"github.com/kpechenenko/img-previewer/internal/downloader" //nolint:depguard
+	"github.com/kpechenenko/img-previewer/internal/service"    //nolint:depguard
 )
 
 // MakePreviewHandler обработчик http запроса на создание превью изображения.
@@ -19,6 +20,7 @@ type MakePreviewHandler struct {
 	srv service.NetPreviewerService
 }
 
+// NewMakePreviewHandler конструктор с параметрами.
 func NewMakePreviewHandler(
 	srv service.NetPreviewerService,
 ) *MakePreviewHandler {
@@ -26,6 +28,7 @@ func NewMakePreviewHandler(
 }
 
 const (
+	// PreviewPrefix название эндпоинта для создания превью изображений.
 	PreviewPrefix = "/preview/"
 )
 

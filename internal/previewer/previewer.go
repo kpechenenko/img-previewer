@@ -1,3 +1,4 @@
+// Package previewer алгоритмы для создания превью изображений.
 package previewer
 
 import (

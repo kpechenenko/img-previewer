@@ -7,6 +7,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	//nolint:depguard
 	"github.com/stretchr/testify/assert"
 )
 

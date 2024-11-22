@@ -1,3 +1,4 @@
+// Package middleware содержит утилиты для логирования http запросов.
 package middleware
 
 import "net/http"

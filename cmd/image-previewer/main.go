@@ -1,3 +1,4 @@
+// Package main запуск приложения.
 package main
 
 import (
@@ -8,7 +9,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/kpechenenko/img-previewer/internal/app"
+	"github.com/kpechenenko/img-previewer/internal/app" //nolint:depguard
 )
 
 var (

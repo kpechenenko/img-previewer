@@ -1,5 +1,6 @@
 package handler
 
+// InvalidParamErr ошибка невалидный параметр.
 type InvalidParamErr struct {
 	description string
 }

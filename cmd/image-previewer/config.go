@@ -4,6 +4,7 @@ type config struct {
 	server *ServerConfig
 }
 
+// ServerConfig конфигурация веб сервера превьювера изображений.
 type ServerConfig struct {
 	Addr string
 }

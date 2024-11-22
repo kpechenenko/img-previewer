@@ -9,7 +9,7 @@ import (
 
 // readImgFromFile загрузить изображение из файла.
 func readImgFromFile(filename string) (image.Image, error) {
-	f, err := os.Open(filename)
+	f, err := os.Open(filename) //nolint:gosec
 	if err != nil {
 		return nil, err
 	}
@@ -20,7 +20,7 @@ func readImgFromFile(filename string) (image.Image, error) {
 
 // writeImgToFile записать изображение в файл.
 func writeImgToFile(img image.Image, filename string) error {
-	f, err := os.Create(filename)
+	f, err := os.Create(filename) //nolint:gosec
 	if err != nil {
 		return err
 	}
@@ -33,11 +33,11 @@ func writeImgToFile(img image.Image, filename string) error {
 
 // filesHaveSameContent у файлов одинаковое содержимое в байтах.
 func filesHaveSameContent(filename1, filename2 string) (bool, error) {
-	f1, err := os.ReadFile(filename1)
+	f1, err := os.ReadFile(filename1) //nolint:gosec
 	if err != nil {
 		return false, err
 	}
-	f2, err := os.ReadFile(filename2)
+	f2, err := os.ReadFile(filename2) //nolint:gosec
 	if err != nil {
 		return false, err
 	}

@@ -5,7 +5,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/assert" //nolint:depguard
 )
 
 // TestKNNPreviewer_MakePreview проверить создание превью изображений, обработку параметров.

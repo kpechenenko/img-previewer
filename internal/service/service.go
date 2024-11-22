@@ -1,3 +1,4 @@
+// Package service бизнес логика приложения.
 package service
 
 import (

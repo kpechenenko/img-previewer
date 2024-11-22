@@ -7,8 +7,8 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/kpechenenko/img-previewer/internal/downloader"
-	"github.com/kpechenenko/img-previewer/internal/previewer"
+	"github.com/kpechenenko/img-previewer/internal/downloader" //nolint:depguard
+	"github.com/kpechenenko/img-previewer/internal/previewer"  //nolint:depguard
 )
 
 // HTTPPreviewerService создает превью для изображений, которые загружает по http.
@@ -17,6 +17,7 @@ type HTTPPreviewerService struct {
 	downloader downloader.HTTPImageDownloader
 }
 
+// DownloadImageAndMakePreview скачать изображение и создать превью.
 func (s *HTTPPreviewerService) DownloadImageAndMakePreview(
 	ctx context.Context,
 	downloadURL string,
@@ -39,6 +40,7 @@ func (s *HTTPPreviewerService) DownloadImageAndMakePreview(
 	return preview, nil
 }
 
+// NewHTTPPreviewerService конструктор с параметрами.
 func NewHTTPPreviewerService(
 	previewer previewer.Previewer,
 	downloader downloader.HTTPImageDownloader,

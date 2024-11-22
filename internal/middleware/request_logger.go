@@ -30,6 +30,7 @@ func (l *RequestLogger) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	)
 }
 
+// NewRequestLogger конструктор с параметрами.
 func NewRequestLogger(handler http.Handler) *RequestLogger {
 	return &RequestLogger{handler: handler}
 }

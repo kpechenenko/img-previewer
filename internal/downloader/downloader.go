@@ -1,3 +1,4 @@
+// Package downloader downloader содержит код загрузчика изображений по http.
 package downloader
 
 import (

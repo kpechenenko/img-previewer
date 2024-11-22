@@ -1,3 +1,4 @@
+// Package app содержит код приложения превью изображений.
 package app
 
 import (
@@ -7,11 +8,11 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/kpechenenko/img-previewer/internal/downloader"
-	"github.com/kpechenenko/img-previewer/internal/handler"
-	"github.com/kpechenenko/img-previewer/internal/middleware"
-	"github.com/kpechenenko/img-previewer/internal/previewer"
-	"github.com/kpechenenko/img-previewer/internal/service"
+	"github.com/kpechenenko/img-previewer/internal/downloader" //nolint:depguard
+	"github.com/kpechenenko/img-previewer/internal/handler"    //nolint:depguard
+	"github.com/kpechenenko/img-previewer/internal/middleware" //nolint:depguard
+	"github.com/kpechenenko/img-previewer/internal/previewer"  //nolint:depguard
+	"github.com/kpechenenko/img-previewer/internal/service"    //nolint:depguard
 )
 
 // PreviewerApp веб сервер с api для создания превью изображений.
@@ -19,6 +20,7 @@ type PreviewerApp struct {
 	srv *http.Server
 }
 
+// NewPreviewer конструктор с параметрами.
 func NewPreviewer(addr string) *PreviewerApp {
 	mux := http.NewServeMux()
 	mux.Handle(
@@ -36,6 +38,7 @@ func NewPreviewer(addr string) *PreviewerApp {
 	return &PreviewerApp{srv: &srv}
 }
 
+// Start запустить приложение.
 func (a *PreviewerApp) Start() {
 	go func() {
 		slog.Info("starting previewer app at " + a.srv.Addr)
@@ -45,6 +48,7 @@ func (a *PreviewerApp) Start() {
 	}()
 }
 
+// Stop остановить работу приложения.
 func (a *PreviewerApp) Stop(ctx context.Context) error {
 	slog.Info("stopping previewer app")
 	if err := a.srv.Shutdown(ctx); err != nil {

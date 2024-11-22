@@ -5,6 +5,7 @@ import (
 	"net/http"
 )
 
+// PingHandler обработчик пинг запросов от пользователя.
 type PingHandler struct{}
 
 func (h *PingHandler) ServeHTTP(w http.ResponseWriter, _ *http.Request) {
@@ -14,6 +15,7 @@ func (h *PingHandler) ServeHTTP(w http.ResponseWriter, _ *http.Request) {
 	}
 }
 
+// NewPingHandler конструктор с параметрами.
 func NewPingHandler() *PingHandler {
 	return &PingHandler{}
 }
