@@ -1,29 +1,25 @@
 # Первьювер изображений
 
 Веб-сервис, позволяющий создавать превью (уменьшенные копии) изображений из сети в формате jpeg.
-Финальный проект по курсу "Разработчик Golang" от OTUS.
 
-## Запуск сервиса
+## Демонстрация
 
-Конфигурация выполняется через переменные окружения.
-По умолчанию приложение запускается на localhost на 8080 порту.
+![demo.gif](assets/demo.gif)
 
-Без docker
-
-```bash
-make run
-```
-
-С docker
+## Запуск
 
 ```bash
 make run-img
 ```
 
-## Использование сервиса
+Веб-сервис на localhost на 8080 порту.
 
-После запуска сервиса перейти
-по [http://127.0.0.1:8080/preview/100/300/raw.githubusercontent.com/OtusGolang/final_project/master/examples/image-previewer/_gopher_original_1024x504.jpg](http://127.0.0.1:8080/preview/100/300/raw.githubusercontent.com/OtusGolang/final_project/master/examples/image-previewer/_gopher_original_1024x504.jpg)
+## Использование
+
+В браузере перейти
+по `http://<SERVICE_HOST>:<SERVICE_PORT>/preview/<PREVIEW_WIDTH>/<PREVIEW_HEIGHT>/<LINK_TO_ORIGINAL_IMAGE>`
+
+Например [http://127.0.0.1:8080/preview/100/300/raw.githubusercontent.com/OtusGolang/final_project/master/examples/image-previewer/_gopher_original_1024x504.jpg](http://127.0.0.1:8080/preview/100/300/raw.githubusercontent.com/OtusGolang/final_project/master/examples/image-previewer/_gopher_original_1024x504.jpg)
 
 * http://127.0.0.1:8080/ - адрес приложения,
 * `preview/` - эндпоинт для создания превью,
